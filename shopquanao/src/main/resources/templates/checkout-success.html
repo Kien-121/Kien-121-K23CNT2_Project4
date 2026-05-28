@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt Hàng Thành Công - N11NHK Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+        body { background-color: #f4f6f8; font-family: 'Nunito', sans-serif; display: flex; flex-direction: column; min-height: 100vh;}
+        .success-icon { font-size: 5rem; color: #198754; }
+        .qr-container { background: #fff; border: 2px dashed #84a98c; border-radius: 16px; padding: 20px; text-align: center; max-width: 350px; margin: 0 auto; box-shadow: 0 10px 20px rgba(0,0,0,0.05);}
+        .qr-image { width: 100%; max-width: 250px; border-radius: 12px; }
+        .btn-theme { background-color: #84a98c; color: white; font-weight: bold; border-radius: 8px;}
+        .btn-theme:hover { background-color: #52796f; color: white; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: chonguoidung}"></div>
+
+<div class="container my-5 flex-grow-1 text-center">
+
+    <div th:if="${donHang == null}">
+        <i class="bi bi-exclamation-circle text-warning" style="font-size: 5rem;"></i>
+        <h2 class="fw-bold mt-3">Không tìm thấy thông tin đơn hàng</h2>
+        <a th:href="@{/}" class="btn btn-theme mt-4 px-4 py-2">Về trang chủ</a>
+    </div>
+
+    <div th:if="${donHang != null}" class="card border-0 shadow-sm rounded-4 p-5 mx-auto" style="max-width: 700px;">
+
+        <i class="bi bi-check-circle-fill success-icon mb-2"></i>
+        <h2 class="fw-bold text-dark mb-1">Cảm ơn bạn đã đặt hàng!</h2>
+        <p class="text-muted fs-5 mb-4">Mã đơn hàng của bạn là: <strong class="text-success">#[[${donHang.id}]]</strong></p>
+
+        <!-- KHU VỰC HIỂN THỊ MÃ QR -->
+        <div th:if="${#strings.contains(donHang.trangThaiThanhToan, 'CHỜ CHUYỂN KHOẢN')}" class="mt-4 mb-5">
+            <h5 class="fw-bold text-danger mb-3">Vui lòng quét mã QR dưới đây để hoàn tất thanh toán</h5>
+
+            <div class="qr-container">
+                <!-- 1. MÃ QR NGÂN HÀNG (Tự động tạo ra số tiền chuẩn) -->
+                <div th:if="${#strings.contains(donHang.trangThaiThanhToan, 'BANK')}">
+                    <img th:src="@{'https://img.vietqr.io/image/vietinbank-113366668888-compact2.png?amount=' + ${#numbers.formatInteger(donHang.tongTien,0)} + '&addInfo=Thanh toan don hang N11NHK ' + ${donHang.id}}"
+                         class="qr-image mb-3" alt="Mã QR Ngân Hàng">
+                    <h6 class="fw-bold text-dark">Chuyển khoản Ngân hàng</h6>
+                </div>
+
+                <!-- 2. MÃ QR MOMO (Lấy từ thư mục static/images) -->
+                <div th:if="${#strings.contains(donHang.trangThaiThanhToan, 'MOMO')}">
+                    <img th:src="@{/images/qr-momo.jpg}" class="qr-image mb-3" alt="Mã QR MoMo">
+                    <h6 class="fw-bold text-dark mb-1">Thanh toán qua MoMo</h6>
+                </div>
+
+                <!-- 3. MÃ QR ZALOPAY (Lấy từ thư mục static/images) -->
+                <div th:if="${#strings.contains(donHang.trangThaiThanhToan, 'ZALOPAY')}">
+                    <img th:src="@{/images/qr-zalopay.jpg}" class="qr-image mb-3" alt="Mã QR ZaloPay">
+                    <h6 class="fw-bold text-dark mb-1">Thanh toán qua ZaloPay</h6>
+                </div>
+
+                <div class="bg-light p-3 rounded-3 text-start mt-3 border">
+                    <p class="small text-muted mb-1">Số tiền cần thanh toán:</p>
+                    <h4 class="fw-bold text-danger mb-2" th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h4>
+                    <p class="small text-muted mb-1">Nội dung chuyển khoản (Bắt buộc):</p>
+                    <h5 class="fw-bold text-dark m-0" th:text="'N11NHK ' + ${donHang.id}"></h5>
+                </div>
+            </div>
+
+            <div class="alert alert-warning small mt-3 text-start mx-auto" style="max-width: 400px;">
+                <i class="bi bi-info-circle-fill me-1"></i> Sau khi chuyển khoản thành công, hệ thống sẽ xác nhận đơn hàng của bạn trong vòng 5-10 phút.
+            </div>
+        </div>
+
+        <!-- NẾU THANH TOÁN BẰNG COD HOẶC VÍ -->
+        <div th:unless="${#strings.contains(donHang.trangThaiThanhToan, 'CHỜ CHUYỂN KHOẢN')}" class="bg-light p-4 rounded-3 d-inline-block mt-2">
+            <h5 class="fw-bold text-dark mb-2">Thông tin thanh toán</h5>
+            <p class="text-muted mb-1">Phương thức: <strong th:text="${donHang.trangThaiThanhToan}"></strong></p>
+            <p class="text-muted m-0">Tổng tiền: <strong class="text-danger" th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong></p>
+        </div>
+
+        <div class="mt-5 d-flex justify-content-center gap-3">
+            <a th:href="@{/tai-khoan}" class="btn btn-outline-secondary px-4 py-2 fw-bold">Xem lịch sử đơn hàng</a>
+            <a th:href="@{/products}" class="btn btn-theme px-4 py-2">Tiếp tục mua sắm</a>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Biên tập Tin tức - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Nền tổng thể và phông chữ */
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Khung trắng chứa form - Thêm shadow mượt mà */
+        .content-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 45px 40px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            max-width: 900px;
+            margin: auto;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        /* Ghi đè input form */
+        .form-control {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .form-control::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Hiệu ứng khi hover chuột qua ô input */
+        .form-control:hover {
+            border-color: #94a3b8;
+        }
+
+        /* Hiệu ứng khi click (focus) vào ô input - sáng viền xanh cổ vịt */
+        .form-control:focus {
+            background-color: #ffffff;
+            border-color: #2b5155;
+            color: #1e293b;
+            box-shadow: 0 0 0 4px rgba(43, 81, 85, 0.1);
+        }
+
+        /* Màu chữ Label */
+        .form-label {
+            font-weight: 700;
+            color: #2b5155;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* Dấu sao bắt buộc */
+        .text-danger {
+            color: #ef4444 !important;
+        }
+
+        /* Ghi đè tiêu đề h3 */
+        h3.fw-bold {
+            color: #2b5155;
+            font-weight: 800 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding-bottom: 15px !important;
+        }
+
+        /* Đổi màu link "Quay lại" */
+        .text-muted {
+            color: #475569 !important;
+            font-weight: 700;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+        .text-muted:hover {
+            color: #2b5155 !important;
+            transform: translateX(-3px);
+        }
+
+        /* Đổi nút "Lưu Bài Viết" (bạn đang dùng btn-primary) sang màu xanh cổ vịt */
+        .btn-primary {
+            background-color: #2b5155 !important;
+            border-color: #2b5155 !important;
+            color: #ffffff !important;
+            border-radius: 10px;
+            padding: 12px 30px;
+            box-shadow: 0 4px 6px rgba(43, 81, 85, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #1e3b3e !important;
+            border-color: #1e3b3e !important;
+            box-shadow: 0 6px 12px rgba(43, 81, 85, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Bo góc nút Hủy bỏ */
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 12px 25px;
+            color: #64748b;
+            border-color: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #f1f5f9;
+            color: #334155;
+            border-color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="mb-3">
+            <a th:href="@{/admin/tintuc}" class="text-decoration-none text-muted">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="content-wrapper">
+            <h3 class="fw-bold mb-4 border-bottom border-secondary pb-3" th:text="${tinTuc.id == null ? 'Viết Bài Mới' : 'Sửa Bài Viết'}"></h3>
+
+            <form th:action="@{/admin/tintuc/save}" th:object="${tinTuc}" method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="mb-4">
+                    <label class="form-label">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{title}" placeholder="VD: 5 Cách phối đồ với quần Jean mùa Hè..." required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Đường dẫn ảnh bìa (URL)</label>
+                    <input type="text" class="form-control" th:field="*{image}" placeholder="Dán link ảnh từ internet vào đây...">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Nội dung chi tiết <span class="text-danger">*</span></label>
+                    <textarea class="form-control" th:field="*{content}" rows="10" placeholder="Nhập nội dung bài viết..." required></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-5">
+                    <a th:href="@{/admin/tintuc}" class="btn btn-outline-secondary px-4 py-2 fw-bold">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
+                        <i class="bi bi-floppy me-2"></i> Lưu Bài Viết
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

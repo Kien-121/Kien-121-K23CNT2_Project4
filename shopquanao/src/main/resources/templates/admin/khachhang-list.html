@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Khách hàng - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Nền tổng thể và phông chữ */
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Khung trắng chứa nội dung - Thêm shadow mượt mà */
+        .content-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 35px 40px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        /* Đổi màu tiêu đề trang */
+        h2.fw-bold {
+            color: #2b5155;
+            font-weight: 800 !important;
+        }
+
+        /* Mô tả dưới tiêu đề */
+        p.text-muted.small {
+            color: #64748b !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Ghi đè class table-dark sang giao diện sáng cực thoáng */
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: #edf2f7;
+            --bs-table-hover-bg: #f8fafc;
+            color: #334155;
+        }
+        .table-dark th {
+            color: #2b5155;
+            font-weight: 800;
+            text-transform: none;
+            font-size: 0.95rem;
+            letter-spacing: normal;
+            border-bottom: 2px solid #e2e8f0;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        .table-dark td {
+            vertical-align: middle;
+            color: #475569;
+            border-bottom: 1px solid #edf2f7;
+            font-weight: 600;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        /* Đổi màu Tên Khách Hàng (ghi đè class text-white) */
+        td.text-white {
+            color: #2b5155 !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem;
+        }
+
+        /* Căn chỉnh User Badge cho mềm mại */
+        .user-badge {
+            background-color: #edf2f7;
+            color: #40777b;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 1px solid #e2e8f0;
+            display: inline-block;
+        }
+
+        /* Căn chỉnh badge Khách vãng lai */
+        .bg-secondary.text-dark {
+            background-color: #f8fafc !important;
+            color: #94a3b8 !important;
+            border: 1px dashed #cbd5e1;
+            padding: 6px 12px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        /* Bo góc nút Xóa và hiệu ứng nảy nhẹ khi hover */
+        .btn-outline-danger {
+            border-radius: 8px !important;
+            padding: 6px 16px;
+            transition: all 0.2s ease;
+        }
+        .btn-outline-danger:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="bi bi-people me-2"></i>Danh sách Khách Hàng</h2>
+                    <p class="text-muted mb-0 small">Quản lý thông tin liên hệ và tài khoản người dùng</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Họ và Tên</th>
+                        <th scope="col">Tài Khoản Đăng Nhập</th>
+                        <th scope="col">Số Điện Thoại</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Địa Chỉ</th>
+                        <th scope="col" class="text-center">Hành Động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="kh : ${danhSachKhachHang}">
+                        <td class="fw-bold" th:text="${kh.id}">1</td>
+                        <td class="fw-bold text-white" th:text="${kh.name}">Tên Khách Hàng</td>
+
+                        <td>
+                            <span th:if="${kh.user != null}" class="user-badge" th:text="'@' + ${kh.user.username}">@username</span>
+                            <span th:unless="${kh.user != null}" class="badge bg-secondary text-dark">Khách vãng lai</span>
+                        </td>
+
+                        <td th:text="${kh.phone}">0345...</td>
+                        <td th:text="${kh.email}">kien@gmail.com</td>
+                        <td th:text="${kh.address}">Hà Nội</td>
+
+                        <td class="text-center">
+                            <a th:href="@{/admin/khachhang/delete/{id}(id=${kh.id})}" class="btn btn-outline-danger btn-sm rounded-3" onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này? (Các đơn hàng liên quan có thể bị ảnh hưởng)');">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(danhSachKhachHang)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-2"></i> Hệ thống chưa có dữ liệu khách hàng.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

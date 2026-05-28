@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${tinTuc.title} + ' - N11NHK Shop'">Đọc Tin Tức</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body { background-color: #f9fbf9; color: #2c3e50; font-family: 'Nunito', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* NAVBAR (Giữ nguyên form chuẩn của N11NHK) */
+        .navbar { background-color: #ffffff !important; box-shadow: 0 2px 15px rgba(0,0,0,0.04) !important; }
+        .navbar-brand { color: #52796f !important; font-weight: 800; font-size: 1.6rem; }
+        .nav-link { color: #555 !important; font-weight: 600; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: #52796f !important; transform: translateY(-1px); }
+        .btn-theme { background-color: #84a98c; color: white; border: none; font-weight: 600; }
+        .btn-theme:hover { background-color: #52796f; color: white; }
+        .btn-outline-theme { border: 2px solid #84a98c; color: #84a98c; font-weight: 600; background: transparent; }
+        .btn-outline-theme:hover { background-color: #84a98c; color: white; }
+        .search-bar .form-control { border-color: #cadfd0; background-color: #f9fbf9; }
+
+        /* BỐ CỤC BÀI VIẾT */
+        .article-title { color: #354f52; font-weight: 800; font-size: 2.5rem; line-height: 1.3; }
+        .article-meta { color: #84a98c; font-weight: 600; font-size: 0.95rem; }
+        .article-content {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #4a635d;
+            /* Thuộc tính này cực quan trọng: Giúp giữ lại các dấu xuống dòng khi bạn gõ trong Admin */
+            white-space: pre-line;
+        }
+        .breadcrumb-item a { color: #84a98c; text-decoration: none; font-weight: 600; }
+        .breadcrumb-item a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top py-2 border-bottom border-light">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}"><i class="bi bi-shop-window"></i> N11NHK Shop</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold ms-3 gap-2">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/products}">Sản phẩm</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/tintuc}">Tin tức</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/voucher}">Khuyến mãi</a></li>
+            </ul>
+
+            <form class="d-flex search-bar me-3" th:action="@{/search}" method="GET">
+                <input class="form-control rounded-start-pill ps-4" type="search" name="keyword" placeholder="Tìm trang phục...">
+                <button class="btn btn-theme rounded-end-pill px-3" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/cart}" class="btn btn-outline-theme rounded-circle p-2 lh-1"><i class="bi bi-bag fs-5"></i></a>
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn btn-outline-secondary fw-bold rounded-pill px-4">Đăng nhập</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <div class="dropdown">
+                        <button class="btn btn-theme rounded-pill px-4 dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> <span sec:authentication="name">User</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                            <li><a sec:authorize="hasRole('ADMIN')" class="dropdown-item fw-bold text-warning" th:href="@{/admin/dashboard}"><i class="bi bi-gear"></i> Quản trị</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="m-0 px-2">
+                                    <button type="submit" class="btn btn-danger btn-sm w-100 rounded-pill">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 flex-grow-1">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/tintuc}">Tin tức</a></li>
+                    <li class="breadcrumb-item active text-truncate" aria-current="page" style="max-width: 200px;" th:text="${tinTuc.title}">Tiêu đề</li>
+                </ol>
+            </nav>
+
+            <h1 class="article-title mb-3" th:text="${tinTuc.title}">Tiêu đề bài viết</h1>
+            <div class="article-meta mb-4 d-flex align-items-center gap-3">
+                <span><i class="bi bi-calendar-event me-1"></i> <span th:text="${tinTuc.createdAt != null ? #temporals.format(tinTuc.createdAt, 'dd/MM/yyyy') : 'Mới cập nhật'}"></span></span>
+                <span class="badge bg-light text-success border">Góc Thời Trang</span>
+            </div>
+
+            <img th:if="${tinTuc.image != null and tinTuc.image != ''}"
+                 th:src="${tinTuc.image}"
+                 class="img-fluid rounded-4 shadow-sm w-100 mb-5"
+                 style="max-height: 450px; object-fit: cover;"
+                 alt="Ảnh bìa bài viết">
+
+            <div class="article-content" th:text="${tinTuc.content}">
+                Nội dung chi tiết của bài viết sẽ được hiển thị ở đây...
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top border-light-subtle">
+                <a th:href="@{/tintuc}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Trở về danh sách
+                </a>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light rounded-circle text-primary border shadow-sm" style="width: 40px; height: 40px;"><i class="bi bi-facebook"></i></button>
+                    <button class="btn btn-light rounded-circle text-info border shadow-sm" style="width: 40px; height: 40px;"><i class="bi bi-twitter"></i></button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

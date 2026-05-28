@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Danh mục - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Nền tổng thể và phông chữ */
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Khung trắng chứa nội dung - Thêm shadow mượt mà */
+        .content-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 35px 40px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        /* Đổi màu tiêu đề trang */
+        h2.fw-bold {
+            color: #2b5155;
+            font-weight: 800 !important;
+        }
+
+        /* Mô tả dưới tiêu đề */
+        p.text-muted.small {
+            color: #64748b !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Nút Thêm Danh Mục (ghi đè btn-info) - Thêm hiệu ứng hover */
+        .btn-info {
+            background-color: #2b5155 !important;
+            border-color: #2b5155 !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+            padding: 10px 24px;
+            box-shadow: 0 4px 6px rgba(43, 81, 85, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-info:hover {
+            background-color: #1e3b3e !important;
+            border-color: #1e3b3e !important;
+            box-shadow: 0 6px 12px rgba(43, 81, 85, 0.3);
+            transform: translateY(-2px);
+        }
+        .btn-info i { color: #ffffff !important; }
+
+        /* Ghi đè class table-dark sang giao diện sáng cực thoáng */
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: #edf2f7;
+            --bs-table-hover-bg: #f8fafc;
+            color: #334155;
+        }
+        .table-dark th {
+            color: #2b5155;
+            font-weight: 800;
+            text-transform: none;
+            font-size: 0.95rem;
+            letter-spacing: normal;
+            border-bottom: 2px solid #e2e8f0;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        .table-dark td {
+            vertical-align: middle;
+            color: #475569;
+            border-bottom: 1px solid #edf2f7;
+            font-weight: 600;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        /* Màu chữ Tên Danh Mục (ghi đè text-info) */
+        td .text-info {
+            color: #2b5155 !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem;
+        }
+
+        /* Cột mô tả danh mục */
+        td.text-muted {
+            color: #64748b !important;
+            font-weight: 500;
+        }
+
+        /* Bo góc nút Xóa và hiệu ứng nảy */
+        .btn-outline-danger {
+            border-radius: 8px !important;
+            padding: 6px 16px;
+            transition: all 0.2s ease;
+        }
+        .btn-outline-danger:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="bi bi-tags me-2"></i>Danh sách Phân Loại</h2>
+                    <p class="text-muted mb-0 small">Quản lý các danh mục quần áo của shop</p>
+                </div>
+                <a th:href="@{/admin/danhmuc/add}" class="btn btn-info text-dark fw-bold px-4 py-2 rounded-3">
+                    <i class="bi bi-plus-circle me-1"></i> Thêm Danh Mục
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 10%;">ID</th>
+                        <th scope="col" style="width: 25%;">Tên Danh Mục</th>
+                        <th scope="col" style="width: 45%;">Mô tả</th>
+                        <th scope="col" style="width: 20%;" class="text-center">Hành Động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="dm : ${danhSachDanhMuc}">
+                        <td class="fw-bold" th:text="${dm.id}">1</td>
+                        <td>
+                            <span class="text-info fw-semibold" th:text="${dm.name}">Tên DM</span>
+                        </td>
+                        <td class="text-muted" th:text="${dm.description}">Mô tả...</td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/danhmuc/delete/{id}(id=${dm.id})}" class="btn btn-outline-danger btn-sm rounded-3" onclick="return confirm('Xóa danh mục này có thể làm các sản phẩm bên trong bị mất phân loại. Bạn chắc chứ?');">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

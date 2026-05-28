@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Sản phẩm - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Áp dụng phông chữ Nunito cho toàn bộ trang */
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .content-wrapper {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            border: 1px solid #e3e6f0;
+        }
+
+        /* Tiêu đề trang lấy CHÍNH XÁC mã màu từ ảnh bạn gửi */
+        .page-title {
+            color: #2b5155; /* Xanh cổ vịt đậm / Slate Green */
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        /* Chỉnh màu tiêu đề bảng giống màu chữ "Tên sản phẩm" */
+        .table th {
+            color: #2b5155;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .table td {
+            vertical-align: middle;
+            color: #334155; /* Xám đen nhẹ để phân biệt với tiêu đề */
+            border-bottom: 1px solid #edf2f7;
+            font-weight: 600;
+        }
+
+        .badge-category {
+            background-color: #edf2f7;
+            color: #2b5155;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .price-text {
+            color: #2b5155;
+            font-weight: 800;
+        }
+
+        /* Chỉnh màu link Tên sản phẩm sáng hơn một chút (giống màu chữ Quay lại danh sách) */
+        .product-name-link {
+            color: #40777b;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .product-name-link:hover {
+            color: #2b5155;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="page-title mb-1">Danh sách Sản phẩm</h3>
+                    <p class="text-muted mb-0 small fw-bold">Cập nhật và quản lý kho hàng của bạn</p>
+                </div>
+                <a th:href="@{/admin/sanpham/add}" class="btn btn-primary fw-bold px-4 py-2 rounded-2">
+                    <i class="bi bi-plus-circle me-1"></i> Thêm Sản Phẩm Mới
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 5%;">ID</th>
+                        <th scope="col" style="width: 35%;">Tên Sản Phẩm</th>
+                        <th scope="col" style="width: 20%;">Danh Mục</th>
+                        <th scope="col" style="width: 20%;">Giá Bán</th>
+                        <th scope="col" style="width: 20%;" class="text-center">Hành Động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="sp : ${danhSachSanPham}">
+                        <td class="fw-bold text-muted" th:text="${sp.id}">1</td>
+                        <td>
+                            <a href="#" class="product-name-link" th:text="${sp.name}">Áo thun Basic Trắng</a>
+                        </td>
+                        <td>
+                            <span class="badge-category" th:text="${sp.danhMuc != null ? sp.danhMuc.name : 'Khác'}">Áo thun</span>
+                        </td>
+                        <td class="price-text" th:text="${#numbers.formatDecimal(sp.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">150,000 đ</td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/sanpham/edit/{id}(id=${sp.id})}" class="btn btn-outline-primary btn-sm me-2 rounded-2">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </a>
+                            <a th:href="@{/admin/sanpham/delete/{id}(id=${sp.id})}" class="btn btn-outline-danger btn-sm rounded-2" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

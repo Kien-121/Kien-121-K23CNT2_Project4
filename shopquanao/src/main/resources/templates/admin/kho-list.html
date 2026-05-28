@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử Nhập Kho - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { background-color: #f4f6f9; color: #333; font-family: 'Nunito', sans-serif; }
+        .content-wrapper { background-color: #ffffff; border-radius: 16px; padding: 35px 40px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        h2.fw-bold { color: #2b5155; font-weight: 800 !important; }
+        .table-dark { --bs-table-bg: transparent; --bs-table-border-color: #edf2f7; --bs-table-hover-bg: #f8fafc; color: #334155; }
+        .table-dark th { color: #2b5155; font-weight: 800; border-bottom: 2px solid #e2e8f0; padding: 15px; }
+        .table-dark td { vertical-align: middle; color: #475569; border-bottom: 1px solid #edf2f7; font-weight: 600; padding: 15px; }
+        .btn-theme { background-color: #2b5155; color: #fff; font-weight: bold; }
+        .btn-theme:hover { background-color: #1f3b3e; color: #fff; }
+        .badge-size { background-color: #e2e8f0; color: #334155; padding: 6px 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="bi bi-box-arrow-in-down me-2"></i>Lịch Sử Nhập Kho</h2>
+                    <p class="text-muted mb-0 small">Theo dõi số lượng hàng hóa và người thực hiện nhập kho</p>
+                </div>
+                <a th:href="@{/admin/kho/add}" class="btn btn-theme px-4 py-2 rounded-3 shadow-sm">
+                    <i class="bi bi-plus-lg me-2"></i> Tạo Phiếu Nhập Mới
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Mã Phiếu</th>
+                        <th>Sản Phẩm Nhập</th>
+                        <th>Size Phân Loại</th>
+                        <th>Số Lượng</th>
+                        <th>Thời Gian Nhập</th>
+                        <th>Người Nhập</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="phieu : ${danhSachPhieuNhap}">
+                        <td class="fw-bold text-info" th:text="'#NK' + ${phieu.id}">#NK1</td>
+
+                        <td class="fw-bold" style="color: #40777b;" th:text="${phieu.sanPham != null ? phieu.sanPham.name : 'Sản phẩm đã xóa'}">Áo Thun</td>
+
+                        <td><span class="badge-size" th:text="${phieu.size}">M</span></td>
+
+                        <td class="fw-bold text-success fs-5">
+                            + <span th:text="${phieu.soLuongNhap}">0</span>
+                        </td>
+
+                        <td th:text="${phieu.ngayNhap != null ? #temporals.format(phieu.ngayNhap, 'dd/MM/yyyy HH:mm') : ''}"></td>
+
+                        <td>
+                            <span class="badge" style="background-color: #2b5155;" th:text="${phieu.nguoiNhap}">Admin</span>
+                        </td>
+
+                        <td class="text-center">
+                            <a th:href="@{'/admin/kho/delete/' + ${phieu.id}}"
+                               class="btn btn-outline-danger btn-sm rounded-3 px-2"
+                               onclick="return confirm('⚠️ Việc xóa phiếu nhập sẽ không tự động trừ số lượng sản phẩm. Bạn có chắc chắn xóa lịch sử này?');">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(danhSachPhieuNhap)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-boxes fs-1 d-block mb-2"></i> Kho chưa có lịch sử nhập hàng nào.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

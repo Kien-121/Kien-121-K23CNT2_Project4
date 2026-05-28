@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin Tức & Blog - N11NHK Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body { background-color: #f9fbf9; color: #2c3e50; font-family: 'Nunito', sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* ================= CSS THẺ BÀI VIẾT (CARD) ================= */
+        .blog-card { background: #fff; border: 1px solid #eef2ee; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease; }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(132, 169, 140, 0.15); border-color: #cadfd0; }
+        .blog-image-container { overflow: hidden; border-radius: 16px 16px 0 0; }
+        .blog-card img { transition: transform 0.5s ease; }
+        .blog-card:hover img { transform: scale(1.05); }
+        .blog-category { color: #84a98c; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;}
+        .blog-title { color: #354f52; font-weight: 800; text-decoration: none; transition: 0.2s;}
+        .blog-title:hover { color: #52796f; }
+    </style>
+</head>
+<body>
+
+<!-- GỌI HEADER DÙNG CHUNG VÀO ĐÂY -->
+<div th:replace="~{fragments/header :: chonguoidung}"></div>
+
+<div class="container py-5 flex-grow-1">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-dark mb-3">Góc Thời Trang & Blog</h1>
+        <p class="text-muted fs-5">Cập nhật những xu hướng mới nhất và mẹo phối đồ cực chất từ N11NHK.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        <div class="col" th:each="tin : ${danhSachTinTuc}">
+            <div class="card h-100 blog-card">
+                <div class="blog-image-container">
+                    <img th:src="${tin.image != null and tin.image != '' ? tin.image : 'https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                         class="card-img-top" style="height: 220px; object-fit: cover;" alt="Hình ảnh">
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column">
+                    <span class="blog-category mb-2">Tin Tức</span>
+
+                    <a th:href="@{'/tintuc/' + ${tin.id}}" class="blog-title fs-5 lh-base mb-2" th:text="${tin.title}">Tiêu đề bài viết</a>
+
+                    <p class="card-text text-muted small mt-2 mb-3" th:text="${tin.content != null and tin.content != '' ? #strings.abbreviate(tin.content, 120) : 'Đang cập nhật nội dung...'}"></p>
+
+                    <span class="text-muted small mt-auto fw-semibold">
+                        <i class="bi bi-clock me-1"></i>
+                        <span th:text="${tin.createdAt != null ? #temporals.format(tin.createdAt, 'dd/MM/yyyy') : 'Mới cập nhật'}"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 text-center mt-5" th:if="${#lists.isEmpty(danhSachTinTuc)}">
+            <p class="text-muted fs-5"><i class="bi bi-journal-x fs-3 d-block mb-2"></i> Chưa có bài viết nào được đăng.</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- GỌI FOOTER DÙNG CHUNG -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh Toán - N11NHK Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+        body { background-color: #f4f6f8; font-family: 'Nunito', sans-serif; }
+        .checkout-header { background-color: #1a1a1a; color: white; padding: 15px 0; }
+        .card-custom { background: white; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .form-control:focus { border-color: #84a98c; box-shadow: 0 0 0 0.25rem rgba(132, 169, 140, 0.25); }
+        .btn-theme { background-color: #1a1a1a; color: white; font-weight: bold; border-radius: 8px;}
+        .btn-theme:hover { background-color: #333; color: white; }
+
+        .payment-method-label {
+            display: flex; align-items: center; padding: 15px; border: 1px solid #e0e0e0;
+            border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 10px;
+        }
+        .payment-method-label:hover { background-color: #f9fbf9; border-color: #84a98c; }
+        .form-check-input:checked + .payment-method-label { border-color: #84a98c; background-color: #e8f0e9; }
+        .payment-logo { width: 30px; height: 30px; object-fit: contain; margin-right: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="checkout-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h4 class="m-0 fw-bold"><i class="bi bi-shop-window me-2"></i>N11NHK Shop - Thanh Toán</h4>
+        <a th:href="@{/cart}" class="text-white text-decoration-none fw-semibold"><i class="bi bi-cart-arrow-left"></i> Quay lại giỏ hàng</a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <form th:action="@{/checkout/xac-nhan}" method="post" id="checkoutForm">
+        <div class="row g-4">
+
+            <div class="col-lg-7">
+                <div class="card-custom p-4 mb-4">
+                    <h4 class="fw-bold border-bottom pb-3 mb-4">Thông tin giao hàng</h4>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số điện thoại nhận hàng <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-telephone"></i></span>
+                            <input type="text" class="form-control" name="soDienThoai"
+                                   th:value="${user != null ? user.soDienThoai : ''}"
+                                   placeholder="Ví dụ: 0912345678" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Địa chỉ giao hàng chi tiết <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+                            <textarea class="form-control" name="diaChi" rows="3"
+                                      placeholder="Nhập số nhà, tên đường, phường/xã, quận/huyện..."
+                                      required th:text="${user != null ? user.diaChi : ''}"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-custom p-4">
+                    <h4 class="fw-bold border-bottom pb-3 mb-4">Phương thức thanh toán</h4>
+
+                    <input class="form-check-input d-none" type="radio" name="phuongThucThanhToan" id="payCOD" value="COD" checked>
+                    <label class="payment-method-label" for="payCOD">
+                        <i class="bi bi-cash-stack fs-3 text-success me-3"></i>
+                        <span class="fw-bold">Thanh toán khi nhận hàng (COD)</span>
+                    </label>
+
+                    <input class="form-check-input d-none" type="radio" name="phuongThucThanhToan" id="payWallet" value="WALLET">
+                    <label class="payment-method-label" for="payWallet">
+                        <i class="bi bi-wallet2 fs-3 text-primary me-3"></i>
+                        <span class="fw-bold flex-grow-1">Thanh toán bằng Ví N11NHK</span>
+                        <span class="badge bg-primary fs-6">Số dư:
+                            <span th:text="${user != null and user.soDuVi != null ? #numbers.formatDecimal(user.soDuVi, 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'"></span>
+                        </span>
+                    </label>
+
+                    <input class="form-check-input d-none" type="radio" name="phuongThucThanhToan" id="payBank" value="BANK">
+                    <label class="payment-method-label" for="payBank">
+                        <i class="bi bi-qr-code-scan fs-3 text-dark me-3"></i>
+                        <span class="fw-bold">Chuyển khoản Ngân hàng (Quét QR)</span>
+                    </label>
+
+                    <!-- Cập nhật lại link ảnh MoMo -->
+                    <input class="form-check-input d-none" type="radio" name="phuongThucThanhToan" id="payMomo" value="MOMO">
+                    <label class="payment-method-label" for="payMomo">
+                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square.png" class="payment-logo" alt="MoMo">
+                        <span class="fw-bold">Thanh toán qua Ví MoMo</span>
+                    </label>
+
+                    <input class="form-check-input d-none" type="radio" name="phuongThucThanhToan" id="payZalo" value="ZALOPAY">
+                    <label class="payment-method-label" for="payZalo">
+                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png" class="payment-logo">
+                        <span class="fw-bold">Thanh toán qua ZaloPay</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card-custom p-4 sticky-top" style="top: 20px;">
+                    <h4 class="fw-bold border-bottom pb-3 mb-4">Tóm tắt đơn hàng</h4>
+
+                    <!-- ĐÃ SỬA item.soLuong thành item.quantity Ở ĐÂY -->
+                    <div class="d-flex justify-content-between mb-3" th:each="item : ${cartItems}">
+                        <div>
+                            <span class="fw-semibold" th:text="${item.sanPham.name}">Áo thun</span><br>
+                            <small class="text-muted">Số lượng: <span th:text="${item.quantity}">1</span></small>
+                        </div>
+                        <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(item.sanPham.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4">
+                        <label class="fw-bold mb-2"><i class="bi bi-ticket-perforated text-success me-1"></i> Mã giảm giá</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="voucherInput" name="maVoucher" placeholder="Nhập mã...">
+                            <button class="btn btn-dark px-4" type="button" onclick="applyVoucher()">Áp dụng</button>
+                        </div>
+                        <div id="voucherMessage" class="small mt-2 fw-bold"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tạm tính:</span>
+                        <span class="fw-bold" id="subtotalDisplay" th:text="${tongTien != null ? #numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí vận chuyển:</span>
+                        <span class="fw-bold text-success">Miễn phí</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 text-danger" id="discountRow" style="display: none !important;">
+                        <span>Giảm giá Voucher:</span>
+                        <span class="fw-bold" id="discountDisplay">- 0 đ</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold">Tổng thanh toán:</span>
+                        <span class="fs-3 fw-bold text-danger" id="totalDisplay" th:text="${tongTien != null ? #numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'"></span>
+                    </div>
+
+                    <input type="hidden" name="tongTienThucTe" id="tongTienThucTeInput" th:value="${tongTien != null ? tongTien : 0}">
+
+                    <button type="submit" class="btn btn-theme w-100 py-3 fs-5">XÁC NHẬN ĐẶT HÀNG</button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script th:inline="javascript">
+    let originalTotal = /*[[${tongTien != null ? tongTien : 0}]]*/ 0;
+</script>
+
+<script>
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+    }
+
+    function applyVoucher() {
+        const code = document.getElementById('voucherInput').value.trim();
+        const msgDiv = document.getElementById('voucherMessage');
+        const discountRow = document.getElementById('discountRow');
+        const discountDisplay = document.getElementById('discountDisplay');
+        const totalDisplay = document.getElementById('totalDisplay');
+        const totalInput = document.getElementById('tongTienThucTeInput');
+
+        if (!code) {
+            msgDiv.className = 'small mt-2 fw-bold text-danger';
+            msgDiv.innerText = 'Vui lòng nhập mã giảm giá!';
+            return;
+        }
+
+        fetch(`/api/voucher/check?code=${code}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid) {
+                    msgDiv.className = 'small mt-2 fw-bold text-success';
+                    msgDiv.innerHTML = `<i class="bi bi-check-circle"></i> ${data.message} (Giảm ${data.discount}%)`;
+
+                    let discountAmount = originalTotal * (data.discount / 100);
+                    let finalTotal = originalTotal - discountAmount;
+
+                    discountRow.style.setProperty('display', 'flex', 'important');
+                    discountDisplay.innerText = '- ' + formatCurrency(discountAmount);
+                    totalDisplay.innerText = formatCurrency(finalTotal);
+
+                    totalInput.value = finalTotal;
+                } else {
+                    msgDiv.className = 'small mt-2 fw-bold text-danger';
+                    msgDiv.innerHTML = `<i class="bi bi-x-circle"></i> ${data.message}`;
+
+                    discountRow.style.setProperty('display', 'none', 'important');
+                    totalDisplay.innerText = formatCurrency(originalTotal);
+                    totalInput.value = originalTotal;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+            });
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

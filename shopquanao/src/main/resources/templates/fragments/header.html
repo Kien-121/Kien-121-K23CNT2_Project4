@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+
+<header th:fragment="chonguoidung">
+
+    <style>
+        /* TÌM KIẾM LIVE SEARCH */
+        .search-container { position: relative; }
+        .search-dropdown {
+            position: absolute; top: 100%; left: 0; right: 45px;
+            background: white; border: 1px solid #eef2ee; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-height: 400px; overflow-y: auto;
+            z-index: 1050; display: none; margin-top: 8px;
+        }
+        .search-item {
+            display: flex; align-items: center; padding: 12px 15px;
+            text-decoration: none; border-bottom: 1px solid #f9fbf9;
+            transition: background 0.2s;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background: #e8f0e9; text-decoration: none; }
+        .search-item img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; margin-right: 15px; border: 1px solid #eee;}
+        .search-item-info { display: flex; flex-direction: column; overflow: hidden; }
+        .search-item-name { font-weight: 700; font-size: 0.9rem; color: #354f52; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .search-item-price { color: #e63946; font-size: 0.85rem; font-weight: 800; }
+        .btn-theme { background-color: #84a98c; color: white; }
+        .btn-theme:hover { background-color: #52796f; color: white; }
+
+        /* CSS CHO MINI CART */
+        .cart-wrapper { position: relative; }
+
+        .mini-cart {
+            position: absolute; top: 100%; right: 0; width: 340px;
+            background: white; border: 1px solid #eef2ee; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1050;
+            padding: 15px; margin-top: 15px; display: none;
+            opacity: 0; transition: opacity 0.3s ease, margin-top 0.3s ease;
+        }
+
+        /* Hiệu ứng lia chuột hiện Mini Cart */
+        .cart-wrapper:hover .mini-cart { display: block; opacity: 1; margin-top: 10px; }
+
+        /* Mũi tên nhọn trỏ lên trên */
+        .mini-cart::before {
+            content: ""; position: absolute; top: -8px; right: 18px;
+            border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .mini-cart-item { display: flex; align-items: center; border-bottom: 1px solid #f9fbf9; padding-bottom: 10px; margin-bottom: 10px; }
+        .mini-cart-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .mini-cart-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #cadfd0; }
+        .mini-cart-title { font-size: 0.9rem; font-weight: 700; color: #354f52; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;}
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3 text-success d-flex align-items-center" th:href="@{/}">
+                <i class="bi bi-shop me-2"></i> N11NHK Shop
+            </a>
+
+            <button class="navbar-expand-lg navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+
+                <!-- MENU CHÍNH -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4 gap-2">
+                    <li class="nav-item"><a class="nav-link fw-bold text-secondary" th:href="@{/}">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-secondary" th:href="@{/products}">Sản phẩm</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-secondary" th:href="@{/tintuc}">Tin tức</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-secondary" th:href="@{/voucher}">Khuyến mãi</a></li>
+                </ul>
+
+                <!-- THANH TÌM KIẾM -->
+                <form class="d-flex search-bar me-3 search-container" th:action="@{/search}" method="GET" style="width: 300px;">
+                    <input class="form-control rounded-start-pill ps-4" type="search" name="keyword" id="liveSearchInput" placeholder="Tìm trang phục..." autocomplete="off">
+                    <button class="btn btn-theme rounded-end-pill px-3" type="submit"><i class="bi bi-search"></i></button>
+                    <div class="search-dropdown" id="searchDropdown"></div>
+                </form>
+
+                <!-- KHỐI GIỎ HÀNG THU NHỎ (MINI CART) -->
+                <div class="cart-wrapper me-4">
+                    <!-- Nút bấm chính -->
+                    <a th:href="@{/cart}" class="btn btn-outline-secondary rounded-circle p-2 lh-1 position-relative" style="transition: 0.2s;">
+                        <i class="bi bi-bag fs-5"></i>
+                        <!-- ĐÃ SỬA: Dùng th:if để kiểm tra nếu lớn hơn 0 mới render thẻ span này ra -->
+                        <span th:if="${session.tongSoLuongGioHang != null and session.tongSoLuongGioHang > 0}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm"
+                              style="font-size: 0.65rem;"
+                              th:text="${session.tongSoLuongGioHang}">
+                        </span>
+                    </a>
+
+                    <!-- Bảng Dropdown hiện ra khi hover -->
+                    <div class="mini-cart cursor-default shadow">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: #354f52;">Giỏ hàng của bạn</h6>
+
+                        <!-- Hiển thị NẾU CÓ hàng trong giỏ -->
+                        <div th:if="${session.danhSachGioHang != null and !#lists.isEmpty(session.danhSachGioHang)}">
+
+                            <div th:each="item, iterStat : ${session.danhSachGioHang}" th:if="${iterStat.index < 3}" class="mini-cart-item">
+                                <img th:src="${item.sanPham.image != null ? item.sanPham.image : 'https://via.placeholder.com/50'}" class="mini-cart-img" alt="SP">
+                                <div class="ms-3 flex-grow-1">
+                                    <a th:href="@{/sanpham/{id}(id=${item.sanPham.id})}" class="mini-cart-title text-decoration-none" th:text="${item.sanPham.name}">Tên SP</a>
+                                    <div class="text-muted fw-bold mt-1" style="font-size: 0.75rem;">
+                                        Phân loại: <span class="badge bg-light text-dark border px-2 py-1" th:text="${item.size != null and item.size != '' ? item.size : 'Mặc định'}">Size</span>
+                                        <span class="ms-1">x <span th:text="${item.quantity}">1</span></span>
+                                    </div>
+                                </div>
+                                <div class="fw-bold text-danger text-end" style="font-size: 0.9rem;"
+                                     th:text="${#numbers.formatDecimal(item.sanPham.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">Giá</div>
+                            </div>
+
+                            <div th:if="${#lists.size(session.danhSachGioHang) > 3}" class="text-center py-2 text-muted small fst-italic border-top mt-2">
+                                Và <span th:text="${#lists.size(session.danhSachGioHang) - 3}"></span> sản phẩm khác...
+                            </div>
+
+                            <a th:href="@{/cart}" class="btn btn-theme w-100 mt-3 rounded-pill fw-bold">Xem Chi Tiết Giỏ Hàng</a>
+                        </div>
+
+                        <!-- Hiển thị NẾU TRỐNG giỏ hàng -->
+                        <div class="text-center py-3" th:unless="${session.danhSachGioHang != null and !#lists.isEmpty(session.danhSachGioHang)}">
+                            <i class="bi bi-bag-x" style="font-size: 3rem; color: #cadfd0;"></i>
+                            <p class="text-muted mt-2 mb-0 fw-semibold">Giỏ hàng của bạn đang trống.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PHẦN THÀNH VIÊN -->
+                <div class="d-flex align-items-center">
+                    <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                        Đăng nhập
+                    </a>
+
+                    <div sec:authorize="isAuthenticated()" class="dropdown">
+                        <button class="btn btn-theme rounded-pill dropdown-toggle px-3 fw-bold d-flex align-items-center gap-2" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            <span sec:authentication="name">Username</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-2" aria-labelledby="userMenuBtn">
+                            <li sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                                <a class="dropdown-item fw-bold text-warning mb-1" th:href="@{/admin/dashboard}">
+                                    <i class="bi bi-gear me-2"></i> Quản trị
+                                </a>
+                            </li>
+
+                            <!-- ĐÃ TRẢ LẠI VÍ CHO BẠN Ở ĐÂY -->
+                            <li>
+                                <a class="dropdown-item fw-bold mb-1 text-success" th:href="@{/tai-khoan}">
+                                    <i class="bi bi-wallet2 me-2"></i> Ví N11NHK
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item fw-bold mb-1" style="color: #52796f;" th:href="@{/tai-khoan}">
+                                    <i class="bi bi-person-vcard me-2"></i> Tài khoản của tôi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item fw-bold mb-1" style="color: #52796f;" th:href="@{/tai-khoan}">
+                                    <i class="bi bi-clock-history me-2"></i> Lịch sử đơn hàng
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="m-0 px-2">
+                                    <button type="submit" class="btn btn-danger btn-sm w-100 rounded-pill">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Thư viện JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script AJAX Tìm kiếm -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('liveSearchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+            if(!searchInput || !searchDropdown) return;
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+
+            searchInput.addEventListener('input', function() {
+                const keyword = this.value.trim();
+                if (keyword.length > 0) {
+                    fetch(`/api/search-live?keyword=${encodeURIComponent(keyword)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            searchDropdown.innerHTML = '';
+                            if (data.length > 0) {
+                                data.forEach(sp => {
+                                    const a = document.createElement('a');
+                                    a.href = `/sanpham/${sp.id}`;
+                                    a.className = 'search-item';
+                                    a.innerHTML = `
+                                            <img src="${sp.image}" alt="Ảnh">
+                                            <div class="search-item-info">
+                                                <span class="search-item-name">${sp.name}</span>
+                                                <span class="search-item-price">${formatCurrency(sp.price)}</span>
+                                            </div>
+                                        `;
+                                    searchDropdown.appendChild(a);
+                                });
+                                searchDropdown.style.display = 'block';
+                            } else {
+                                searchDropdown.innerHTML = '<div class="p-3 text-center text-muted small fw-bold">Không tìm thấy sản phẩm!</div>';
+                                searchDropdown.style.display = 'block';
+                            }
+                        }).catch(err => console.error(err));
+                } else {
+                    searchDropdown.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    searchDropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</header>
+
+</body>
+</html>

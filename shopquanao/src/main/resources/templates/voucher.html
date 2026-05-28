@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến Mãi & Voucher - N11NHK Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body {
+            background-color: #f9fbf9;
+            color: #2c3e50;
+            font-family: 'Nunito', sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* HEADER TRANG */
+        .page-header { background-color: #e8f0e9; padding: 50px 0; margin-bottom: 40px; border-radius: 0 0 24px 24px; }
+
+        /* GIAO DIỆN VOUCHER TICKET */
+        .voucher-card {
+            background: #fff;
+            border: 2px dashed #cadfd0;
+            border-radius: 16px;
+            display: flex;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            overflow: hidden;
+            position: relative;
+        }
+        .voucher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(132, 169, 140, 0.15);
+            border-color: #84a98c;
+        }
+        .voucher-left {
+            background: linear-gradient(135deg, #84a98c 0%, #52796f 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 130px;
+            border-right: 2px dashed #cadfd0;
+        }
+        .voucher-right { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        .discount-amount { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .discount-type { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+
+        .btn-copy {
+            background-color: #e8f0e9; color: #52796f; font-weight: 700;
+            border: 1px solid #cadfd0; border-radius: 8px; transition: 0.2s;
+        }
+        .btn-copy:hover { background-color: #52796f; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- GỌI HEADER DÙNG CHUNG VÀO ĐÂY -->
+<div th:replace="~{fragments/header :: chonguoidung}"></div>
+
+<!-- PHẦN NỘI DUNG CHÍNH -->
+<div class="flex-grow-1">
+    <div class="page-header text-center">
+        <div class="container">
+            <h1 class="fw-bold display-5 mb-3" style="color: #354f52;"><i class="bi bi-ticket-perforated"></i> Kho Voucher Của N11NHK</h1>
+            <p class="text-muted fs-5 mb-0" style="max-width: 600px; margin: auto;">Lưu ngay mã giảm giá để mua sắm thời trang cao cấp với mức giá siêu hời.</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-4">
+
+            <div class="col-md-6" th:each="v : ${danhSachVoucher}">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 2px dashed #cadfd0 !important;">
+                    <div class="row g-0 h-100">
+
+                        <div class="col-4 text-white d-flex flex-column justify-content-center align-items-center p-3"
+                             style="background-color: #84a98c;">
+                            <h2 class="fw-bold mb-0" th:text="${v.discount != null ? #numbers.formatDecimal(v.discount, 0, 'COMMA', 0, 'POINT') + '%' : '0%'}">20%</h2>
+                            <small class="text-uppercase fw-semibold mt-1 text-center" style="letter-spacing: 1px;">Giảm Giá</small>
+                        </div>
+
+                        <div class="col-8 bg-white d-flex flex-column justify-content-center p-4">
+                            <h5 class="fw-bold text-dark mb-2">Ưu đãi giảm <span th:text="${#numbers.formatDecimal(v.discount, 0, 'COMMA', 0, 'POINT')} + '%'"></span> cho đơn hàng</h5>
+                            <p class="text-muted small mb-3">
+                                Hạn sử dụng: <strong class="text-danger" th:text="${v.endDate != null ? #temporals.format(v.endDate, 'dd/MM/yyyy') : 'Không giới hạn'}"></strong>
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-secondary border px-3 py-2 fs-6 letter-spacing-1" th:text="${v.name}">CODE</span>
+
+                                <!-- KHI CHƯA ĐĂNG NHẬP -->
+                                <th:block sec:authorize="!isAuthenticated()">
+                                    <a th:href="@{/login}"
+                                       class="btn btn-outline-success fw-bold rounded-pill px-3 py-1"
+                                       onclick="alert('Bạn cần đăng nhập trước khi lưu mã giảm giá này!');">Lưu Mã</a>
+                                </th:block>
+
+                                <!-- KHI ĐÃ ĐĂNG NHẬP -->
+                                <th:block sec:authorize="isAuthenticated()">
+                                    <button class="btn btn-outline-success fw-bold rounded-pill px-3 py-1"
+                                            th:data-code="${v.name}"
+                                            onclick="alert('Đã lưu thành công mã: ' + this.getAttribute('data-code') + '!')">Lưu Mã</button>
+                                </th:block>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 text-center text-muted mt-5" th:if="${#lists.isEmpty(danhSachVoucher)}">
+                <i class="bi bi-ticket-detailed fs-1 d-block mb-3"></i>
+                <p class="fs-5">Rất tiếc, hiện tại không có mã giảm giá nào khả dụng.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- GỌI FOOTER DÙNG CHUNG -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Đã dọn dẹp sạch sẽ đoạn script bootstrap thừa ở đây -->
+
+</body>
+</html>

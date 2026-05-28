@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Banner - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; color: #333; font-family: 'Nunito', sans-serif; }
+        .content-wrapper { background-color: #ffffff; border-radius: 16px; padding: 35px 40px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        h2.fw-bold { color: #2b5155; font-weight: 800 !important; }
+        .table-dark { --bs-table-bg: transparent; --bs-table-border-color: #edf2f7; color: #334155; }
+        .table-dark th { color: #2b5155; font-weight: 800; border-bottom: 2px solid #e2e8f0; padding: 15px; }
+        .table-dark td { vertical-align: middle; border-bottom: 1px solid #edf2f7; font-weight: 600; padding: 15px; }
+        .btn-theme { background-color: #2b5155; color: #fff; font-weight: bold; }
+        .btn-theme:hover { background-color: #1f3b3e; color: #fff; }
+    </style>
+</head>
+<body>
+<div class="d-flex" style="min-height: 100vh;">
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-1"><i class="bi bi-images me-2"></i>Quản lý Banner Quảng Cáo</h2>
+                <a th:href="@{/admin/banner/add}" class="btn btn-theme px-4 py-2 rounded-3 shadow-sm">
+                    <i class="bi bi-plus-lg me-2"></i> Thêm Banner Mới
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hình Ảnh Banner</th>
+                        <th>Tên / Mô tả ngắn</th>
+                        <th>Trạng Thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="banner : ${danhSachBanner}">
+                        <td class="fw-bold" th:text="${banner.id}"></td>
+                        <td>
+                            <img th:src="${banner.hinhAnh}" style="width: 250px; height: auto; border-radius: 8px; border: 1px solid #e2e8f0; object-fit: cover;">
+                        </td>
+                        <td th:text="${banner.tenBanner}"></td>
+                        <td>
+                            <a th:href="@{'/admin/banner/toggle/' + ${banner.id}}"
+                               class="badge text-decoration-none"
+                               th:classappend="${banner.trangThai} ? 'bg-success' : 'bg-secondary'"
+                               th:text="${banner.trangThai} ? 'Đang bật' : 'Đang tắt'">
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{'/admin/banner/delete/' + ${banner.id}}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Xóa banner này?');"><i class="bi bi-trash3"></i></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

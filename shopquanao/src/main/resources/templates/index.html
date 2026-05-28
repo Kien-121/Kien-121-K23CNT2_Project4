@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - N11NHK Shop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body { background-color: #f9fbf9; color: #2c3e50; font-family: 'Nunito', sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* ================= BANNERS ================= */
+        .hero-banner {
+            background: linear-gradient(rgba(202, 223, 208, 0.85), rgba(232, 240, 233, 0.95)),
+            url('https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            border-radius: 24px; color: #2c3e50; box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            min-height: 550px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;
+        }
+        .section-banner { border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: 100%; min-height: 350px;}
+        .section-banner img { width: 100%; height: 100%; object-fit: cover; }
+        .section-text { display: flex; flex-direction: column; justify-content: center; padding: 2rem; }
+
+        /* ================= CARDS SẢN PHẨM ================= */
+        .product-card { background: #fff; border: 1px solid #eef2ee; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(132, 169, 140, 0.15); border-color: #cadfd0; }
+        .product-image-container { overflow: hidden; border-radius: 16px 16px 0 0; }
+        .product-card img { transition: transform 0.5s ease; }
+        .product-card:hover img { transform: scale(1.05); }
+        .price-text { color: #52796f; font-weight: 800; font-size: 1.3rem; }
+        .badge-category { background-color: #e8f0e9; color: #52796f; font-weight: 600; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;}
+
+        /* ================= CARDS TIN TỨC ================= */
+        .blog-card { background: #fff; border: 1px solid #eef2ee; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease; }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(132, 169, 140, 0.15); }
+        .blog-image-container { overflow: hidden; border-radius: 16px 16px 0 0; }
+        .blog-category { color: #84a98c; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;}
+        .blog-title { color: #354f52; font-weight: 800; text-decoration: none; transition: 0.2s;}
+        .blog-title:hover { color: #52796f; }
+
+        /* ================= CARDS VOUCHER ================= */
+        .voucher-card { background: #fff; border: 2px dashed #cadfd0; border-radius: 16px; display: flex; transition: all 0.3s ease; overflow: hidden;}
+        .voucher-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(132, 169, 140, 0.15); border-color: #84a98c; }
+        .voucher-left { background: linear-gradient(135deg, #84a98c 0%, #52796f 100%); color: white; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 110px; border-right: 2px dashed #cadfd0; }
+        .voucher-right { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .discount-amount { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+        .btn-copy { background-color: #e8f0e9; color: #52796f; font-weight: 700; border: 1px solid #cadfd0; border-radius: 8px; transition: 0.2s; font-size: 0.85rem; padding: 5px 10px;}
+        .btn-copy:hover { background-color: #52796f; color: white; }
+
+        /* Tiêu đề các khối */
+        .section-title { color: #354f52; font-weight: 800; font-size: 2rem; position: relative; display: inline-block; padding-bottom: 10px; margin-bottom: 30px;}
+        .section-title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background-color: #84a98c; border-radius: 2px;}
+        .section-title.text-end::after { left: auto; right: 0; }
+        .section-title.text-center::after { left: 50%; transform: translateX(-50%); }
+
+        /* ================= FOOTER SOCIAL ICONS ================= */
+        .social-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 42px; height: 42px; border-radius: 50%;
+            background-color: #ffffff; color: #52796f; font-size: 1.2rem;
+            transition: all 0.3s ease; text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .social-icon:hover {
+            background-color: #84a98c; color: #ffffff;
+            transform: translateY(-4px); box-shadow: 0 8px 15px rgba(132, 169, 140, 0.3);
+        }
+        .btn-theme { background-color: #84a98c; color: white; border: none; font-weight: 600; }
+        .btn-theme:hover { background-color: #52796f; color: white; }
+        .btn-outline-theme { border: 2px solid #84a98c; color: #84a98c; font-weight: 600; background: transparent; }
+        .btn-outline-theme:hover { background-color: #84a98c; color: white; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: chonguoidung}"></div>
+
+<div class="container mt-4 mb-5 flex-grow-1">
+
+    <!-- ================= CAROUSEL BANNER TRANG CHỦ (TỰ ĐỘNG CHẠY CHẬM) ================= -->
+    <div class="mb-5">
+        <!-- Khối Slider hiển thị nếu có Banner SLIDER -->
+        <div th:if="${sliderBanners != null and !#lists.isEmpty(sliderBanners)}" id="mainBannerCarousel" class="carousel slide carousel-fade shadow-sm rounded-4 overflow-hidden" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-indicators">
+                <button th:each="banner, iterStat : ${sliderBanners}"
+                        type="button"
+                        data-bs-target="#mainBannerCarousel"
+                        th:data-bs-slide-to="${iterStat.index}"
+                        th:classappend="${iterStat.index == 0} ? 'active' : ''"
+                        aria-current="true">
+                </button>
+            </div>
+
+            <div class="carousel-inner">
+                <div th:each="banner, iterStat : ${sliderBanners}"
+                     class="carousel-item"
+                     th:classappend="${iterStat.index == 0} ? 'active' : ''">
+                    <img th:src="${banner.hinhAnh}" class="d-block w-100" alt="Banner Khuyến Mãi" style="object-fit: cover; height: 550px;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(202, 223, 208, 0.4), rgba(132, 169, 140, 0.7));"></div>
+                    <div class="carousel-caption d-none d-md-flex flex-column justify-content-center align-items-center" style="bottom: 0; top: 0;">
+                        <h1 class="fw-bold display-3 mb-4 text-center" style="color: #2c3e50; text-shadow: 2px 2px 4px rgba(255,255,255,0.7);" th:text="${banner.tenBanner}">Tên Banner</h1>
+                        <p class="fs-4 mb-5 text-center" style="color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); max-width: 700px;">Khám phá bộ sưu tập mùa mới với tông màu nhẹ nhàng, thanh lịch.</p>
+                        <a th:href="@{/products}" class="btn btn-theme btn-lg px-5 py-3 rounded-pill shadow-sm fs-5">
+                            <i class="bi bi-bag-heart"></i> Bắt Đầu Mua Sắm
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#mainBannerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(100%);"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#mainBannerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(100%);"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Khối Mặc định (Hiển thị khi Admin chưa thiết lập Banner SLIDER nào) -->
+        <div th:if="${sliderBanners == null or #lists.isEmpty(sliderBanners)}" class="hero-banner text-center position-relative overflow-hidden mb-5">
+            <h1 class="fw-bold display-3 mb-4" style="color: #2c3e50; letter-spacing: -1px;">Thời Trang Nam Nữ N11NHK</h1>
+            <p class="fs-4 mb-5" style="color: #4a635d; max-width: 700px;">Khám phá bộ sưu tập mùa mới với tông màu nhẹ nhàng, thanh lịch.</p>
+            <a th:href="@{/products}" class="btn btn-theme btn-lg px-5 py-3 rounded-pill shadow-sm fs-5">
+                <i class="bi bi-bag-heart"></i> Bắt Đầu Mua Sắm
+            </a>
+        </div>
+    </div>
+    <!-- ================= END CAROUSEL BANNER ================= -->
+
+    <!-- ================= HÀNG MỚI LÊN KỆ ================= -->
+    <div class="mb-5 pb-5 border-bottom border-light-subtle">
+        <div class="text-center mb-5">
+            <h2 class="section-title text-center">Hàng Mới Lên Kệ</h2>
+            <p class="text-muted fs-5">Những thiết kế được săn đón nhiều nhất trong tuần qua.</p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+            <div class="col" th:each="sp : ${danhSachSanPham}">
+                <div class="card h-100 product-card">
+                    <div class="product-image-container">
+                        <img th:src="${sp.image != null and sp.image != '' ? sp.image : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                             class="card-img-top" alt="Ảnh sản phẩm" style="height: 280px; object-fit: cover;">
+                    </div>
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="mb-2"><span class="badge-category" th:text="${sp.danhMuc != null ? sp.danhMuc.name : 'Khác'}"></span></div>
+                        <h5 class="card-title mt-2 mb-2" th:text="${sp.name}">Tên sản phẩm</h5>
+                        <p class="card-text text-muted small" th:text="${sp.description}">Mô tả ngắn...</p>
+
+                        <!-- KHỐI 3 NÚT -->
+                        <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f0f0f0 !important;">
+                            <span class="price-text" th:text="${#numbers.formatDecimal(sp.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">Giá</span>
+
+                            <div class="d-flex gap-2">
+                                <!-- 1. Nút Xem chi tiết (Mắt) - Ai cũng xem được -->
+                                <a th:href="@{/sanpham/{id}(id=${sp.id})}"
+                                   class="btn rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+                                   style="background-color: #84a98c; width: 35px; height: 35px; transition: 0.2s;"
+                                   title="Xem chi tiết"
+                                   onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <!-- TRƯỜNG HỢP 1: CHƯA ĐĂNG NHẬP -> Chuyển hướng ra trang Login -->
+                                <th:block sec:authorize="!isAuthenticated()">
+                                    <a th:href="@{/login}"
+                                       class="btn rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+                                       style="background-color: #52796f; width: 35px; height: 35px; transition: 0.2s;"
+                                       title="Vui lòng đăng nhập"
+                                       onclick="alert('Bạn cần đăng nhập để mua hàng!');"
+                                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </a>
+
+                                    <a th:href="@{/login}"
+                                       class="btn rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+                                       style="background-color: #354f52; width: 35px; height: 35px; transition: 0.2s;"
+                                       title="Vui lòng đăng nhập"
+                                       onclick="alert('Bạn cần đăng nhập để mua hàng!');"
+                                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        <i class="bi bi-bag-check"></i>
+                                    </a>
+                                </th:block>
+
+                                <!-- TRƯỜNG HỢP 2: ĐÃ ĐĂNG NHẬP -> Chuyển hướng vào trang Chi Tiết để chọn Size -->
+                                <th:block sec:authorize="isAuthenticated()">
+                                    <a th:href="@{/sanpham/{id}(id=${sp.id})}"
+                                       class="btn rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+                                       style="background-color: #52796f; width: 35px; height: 35px; transition: 0.2s;"
+                                       title="Vào trang chi tiết để chọn kích cỡ"
+                                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </a>
+
+                                    <a th:href="@{/sanpham/{id}(id=${sp.id})}"
+                                       class="btn rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+                                       style="background-color: #354f52; width: 35px; height: 35px; transition: 0.2s;"
+                                       title="Vào trang chi tiết để chọn kích cỡ"
+                                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        <i class="bi bi-bag-check"></i>
+                                    </a>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/products}" class="btn btn-outline-theme btn-lg rounded-pill px-5">Xem tất cả sản phẩm <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+
+    <!-- ================= TIN TỨC ================= -->
+    <div class="mb-5 pb-5 border-bottom border-light-subtle">
+        <div class="row g-5 align-items-center mb-5">
+            <div class="col-lg-6">
+                <!-- ================= BANNER TIN TỨC ================= -->
+                <div class="section-banner">
+                    <img th:if="${tinTucBanners != null and !#lists.isEmpty(tinTucBanners)}"
+                         th:src="${tinTucBanners[0].hinhAnh}" alt="News Banner">
+                    <!-- Ảnh mặc định nếu chưa cấu hình trong Admin -->
+                    <img th:unless="${tinTucBanners != null and !#lists.isEmpty(tinTucBanners)}"
+                         src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="News Banner">
+                </div>
+            </div>
+            <div class="col-lg-6 section-text">
+                <h2 class="section-title">Xu Hướng Thời Trang</h2>
+                <p class="fs-5 text-secondary lh-lg mb-4">N11NHK không chỉ là nơi mua sắm, mà còn là cuốn cẩm nang giúp bạn định hình phong cách cá nhân. Khám phá ngay các mẹo phối đồ (mix & match) chuẩn form, những xu hướng màu sắc đang thống trị bảng xếp hạng thời trang, và cách để tự tin tỏa sáng trong mọi hoàn cảnh.</p>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col" th:each="tin : ${danhSachTinTucGiaoDien}">
+                <div class="card h-100 blog-card">
+                    <div class="blog-image-container">
+                        <img th:src="${tin.image != null and tin.image != '' ? tin.image : 'https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                             class="card-img-top" style="height: 200px; object-fit: cover;">
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column">
+                        <span class="blog-category mb-1">Tin Tức</span>
+                        <a th:href="@{'/tintuc/' + ${tin.id}}" class="blog-title fs-6 lh-base mb-2" th:text="${tin.title}">
+                            Tiêu đề bài viết
+                        </a>
+                        <p class="card-text text-muted small mb-3" th:text="${tin.content != null and tin.content != '' ? #strings.abbreviate(tin.content, 90) : 'Đang cập nhật nội dung...'}"></p>
+                        <span class="text-muted small mt-auto">
+                            <i class="bi bi-clock"></i>
+                            <span th:text="${tin.createdAt != null ? #temporals.format(tin.createdAt, 'dd/MM/yyyy') : 'Mới cập nhật'}"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 text-center" th:if="${#lists.isEmpty(danhSachTinTucGiaoDien)}">
+                <p class="text-muted"><i class="bi bi-journal-x fs-4"></i> Chưa có bài viết nào được đăng.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VOUCHER ================= -->
+    <div class="mb-5">
+        <div class="row g-5 align-items-center flex-column-reverse flex-lg-row mb-5">
+            <div class="col-lg-6 section-text text-end">
+                <h2 class="section-title text-end">Săn Deal Độc Quyền</h2>
+                <p class="fs-5 text-secondary lh-lg mb-4">Mua sắm thông minh là mua sắm tiết kiệm! N11NHK luôn dành tặng những mã giảm giá cực sâu, ưu đãi freeship và quà tặng kèm hấp dẫn cho khách hàng thân thiết. Nhanh tay lưu lại các mã bên dưới và áp dụng ngay tại bước thanh toán để tận hưởng mức giá tốt nhất.</p>
+                <div>
+                    <a th:href="@{/voucher}" class="btn btn-outline-theme px-4 py-2 rounded-pill fs-5"><i class="bi bi-tags"></i> Tất Cả Voucher</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- ================= BANNER KHUYẾN MÃI ================= -->
+                <div class="section-banner">
+                    <img th:if="${khuyenMaiBanners != null and !#lists.isEmpty(khuyenMaiBanners)}"
+                         th:src="${khuyenMaiBanners[0].hinhAnh}" alt="Sale Banner">
+                    <!-- Ảnh mặc định nếu chưa cấu hình trong Admin -->
+                    <img th:unless="${khuyenMaiBanners != null and !#lists.isEmpty(khuyenMaiBanners)}"
+                         src="https://d3design.vn/uploads/7138970.jpg" alt="Sale Banner">
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col" th:each="v : ${danhSachVoucher}">
+                <div class="voucher-card h-100">
+                    <div class="voucher-left text-center">
+                        <span class="discount-amount fs-3" th:text="${v.discount != null ? #numbers.formatDecimal(v.discount, 0, 'COMMA', 0, 'POINT') + '%' : '0%'}"></span>
+                        <span class="small fw-bold d-block mt-1">Giảm giá</span>
+                    </div>
+
+                    <div class="voucher-right">
+                        <h6 class="fw-bold mb-1 text-dark">Ưu đãi giảm sâu</h6>
+                        <p class="text-muted small mb-2" style="font-size: 0.8rem;">
+                            HSD: <span th:text="${v.endDate != null ? #temporals.format(v.endDate, 'dd/MM/yyyy') : 'Vô thời hạn'}"></span>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="badge bg-light text-success border border-success px-2 py-1 fs-6" th:text="${v.name}"></span>
+                            <button class="btn btn-copy" th:data-code="${v.name}" onclick="alert('Đã lưu thành công mã: ' + this.getAttribute('data-code'))">Lưu Mã</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 text-center text-muted" th:if="${#lists.isEmpty(danhSachVoucher)}">
+                Hiện tại chưa có chương trình khuyến mãi nào.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- ĐÃ XÓA THƯ VIỆN BOOTSTRAP JS Ở ĐÂY ĐỂ TRÁNH XUNG ĐỘT VỚI FOOTER -->
+
+<!-- SCRIPT AJAX XỬ LÝ GIỎ HÀNG VÀ HIỂN THỊ THÔNG BÁO -->
+<script>
+    function addToCartAjax(productId) {
+        const formData = new URLSearchParams();
+        formData.append('productId', productId);
+        formData.append('quantity', 1);
+
+        fetch('/cart/add', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    showToast('Đã thêm sản phẩm vào giỏ hàng thành công!');
+                } else {
+                    throw new Error('Lỗi phản hồi từ máy chủ');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+            });
+    }
+
+    function showToast(message) {
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '1055';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toastHtml = `
+            <div class="toast align-items-center text-bg-success border-0 show shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body fw-bold fs-6">
+                  <i class="bi bi-check-circle-fill me-2"></i> ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
+              </div>
+            </div>
+        `;
+
+        const toastElement = document.createElement('div');
+        toastElement.innerHTML = toastHtml;
+        const actualToast = toastElement.firstElementChild;
+        toastContainer.appendChild(actualToast);
+
+        // Tự động xóa thông báo sau 3 giây
+        setTimeout(() => {
+            if (actualToast) {
+                actualToast.classList.remove('show');
+                setTimeout(() => actualToast.remove(), 300);
+            }
+        }, 3000);
+    }
+</script>
+</body>
+</html>

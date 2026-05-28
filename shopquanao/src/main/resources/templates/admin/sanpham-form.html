@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật Sản phẩm - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body {
+            background-color: #f9fbf9;
+            color: #2c3e50;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .content-wrapper {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid #eef2ee;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            max-width: 800px;
+            margin: auto;
+            margin-top: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            background-color: #fff;
+            border: 1px solid #cadfd0;
+            color: #2c3e50;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #fff;
+            border-color: #84a98c;
+            color: #2c3e50;
+            box-shadow: 0 0 0 0.25rem rgba(132, 169, 140, 0.15);
+        }
+
+        .form-label { font-weight: 800; color: #354f52; margin-bottom: 8px; }
+
+        .btn-size {
+            background-color: #fff;
+            color: #555;
+            font-weight: 700;
+            border: 2px solid #cadfd0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            min-width: 60px;
+        }
+
+        .btn-size:hover {
+            background-color: #e8f0e9;
+            color: #52796f;
+            border-color: #84a98c;
+        }
+
+        .btn-check-size:checked ~ .btn-size {
+            background-color: #84a98c !important;
+            color: #fff !important;
+            border: 2px solid #52796f !important;
+            box-shadow: 0 4px 10px rgba(132, 169, 140, 0.3);
+        }
+
+        .btn-theme { background-color: #84a98c; color: white; border: none; transition: 0.3s;}
+        .btn-theme:hover { background-color: #52796f; color: white; transform: translateY(-2px);}
+        .btn-outline-theme { border: 2px solid #84a98c; color: #84a98c; background: transparent; transition: 0.3s;}
+        .btn-outline-theme:hover { background-color: #84a98c; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <!-- Sidebar Admin -->
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+
+        <div class="mb-3">
+            <a th:href="@{/admin/sanpham}" class="text-decoration-none" style="color: #52796f; font-weight: 700;">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="content-wrapper">
+
+            <!-- ĐÃ THÊM: HỘP THOẠI THÔNG BÁO LƯU THÀNH CÔNG -->
+            <div th:if="${param.success} or ${message != null}" class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert" style="border-left: 5px solid #52796f; background-color: #e8f0e9; border-color: #cadfd0;">
+                <i class="bi bi-check-circle-fill me-2 fs-5" style="color: #52796f;"></i>
+                <strong style="color: #354f52;" th:text="${message != null ? message : 'Đã lưu thông tin sản phẩm thành công!'}"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <h3 class="fw-bold mb-4 border-bottom pb-3" style="border-color: #e8f0e9 !important; color: #354f52;" th:text="${sanPham.id == null ? 'Thêm Sản Phẩm Mới' : 'Chỉnh Sửa Sản Phẩm'}"></h3>
+
+            <form th:action="@{/admin/sanpham/save}" th:object="${sanPham}" method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="mb-4">
+                    <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{name}" placeholder="VD: Áo thun Polo..." required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Đường dẫn ảnh sản phẩm (URL)</label>
+                    <input type="text" class="form-control fw-normal" th:field="*{image}" placeholder="Dán link ảnh áo/quần từ internet vào đây...">
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Phân loại / Danh mục <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{danhMuc.id}" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="dm : ${danhSachDanhMuc}"
+                                    th:value="${dm.id}"
+                                    th:text="${dm.name}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" th:field="*{price}" placeholder="VD: 250000" required>
+                    </div>
+                </div>
+
+                <!-- ĐÃ FIX: CHUYỂN th:field THÀNH name VÀ DÙNG th:checked ĐỂ ÉP SÁNG NÚT -->
+                <div class="mb-4">
+                    <label class="form-label">Các kích cỡ (Size) hiện có</label>
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                        <th:block th:each="size : ${ {'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'} }">
+                            <div>
+                                <input type="checkbox" class="btn-check btn-check-size"
+                                       th:id="'size_' + ${size}"
+                                       name="sizes"
+                                       th:value="${size}"
+                                       th:checked="${sanPham.sizes != null and #arrays.contains(#strings.arraySplit(#strings.replace(sanPham.sizes, ' ', ''), ','), size)}">
+                                <label class="btn btn-size px-3 py-2 m-0" th:for="'size_' + ${size}" th:text="${size}"></label>
+                            </div>
+                        </th:block>
+                    </div>
+                    <small class="text-muted mt-2 d-block fst-italic"><i class="bi bi-info-circle"></i> Click để chọn hoặc bỏ chọn kích cỡ áo/quần.</small>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Mô tả sản phẩm</label>
+                    <textarea class="form-control fw-normal" th:field="*{description}" rows="4" placeholder="Nhập mô tả chi tiết chất liệu, kiểu dáng..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4" style="border-color: #e8f0e9 !important;">
+                    <a th:href="@{/admin/sanpham}" class="btn btn-outline-theme px-4 py-2 fw-bold rounded-pill">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-theme px-5 py-2 fw-bold rounded-pill shadow-sm">
+                        <i class="bi bi-floppy me-2"></i> Lưu Sản Phẩm
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Đơn hàng - N11NHK Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Nền tổng thể và phông chữ */
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Khung trắng chứa nội dung - Thêm shadow mượt mà */
+        .content-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 35px 40px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        /* Đổi màu tiêu đề trang */
+        h2.fw-bold {
+            color: #2b5155;
+            font-weight: 800 !important;
+        }
+
+        /* Mô tả dưới tiêu đề */
+        p.text-muted.small {
+            color: #64748b !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Ghi đè class table-dark sang giao diện sáng */
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: #edf2f7;
+            --bs-table-hover-bg: #f8fafc;
+            color: #334155;
+        }
+        .table-dark th {
+            color: #2b5155;
+            font-weight: 800;
+            text-transform: none;
+            font-size: 0.95rem;
+            letter-spacing: normal;
+            border-bottom: 2px solid #e2e8f0;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        .table-dark td {
+            vertical-align: middle;
+            color: #475569;
+            border-bottom: 1px solid #edf2f7;
+            font-weight: 600;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        /* Định dạng các text đặc biệt trong bảng */
+        td.text-info, td .text-info {
+            color: #2b5155 !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem;
+        }
+        .text-primary {
+            color: #40777b !important;
+            font-weight: 700;
+        }
+        .price-text {
+            color: #2b5155 !important;
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+
+        /* Xử lý hiển thị cụm nút trạng thái đơn hàng trên nền sáng */
+        .btn-group {
+            gap: 6px; /* Tách nhẹ các nút ra cho dễ bấm */
+            box-shadow: none !important;
+        }
+        .btn-group .btn {
+            border-radius: 6px !important;
+            border: none;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Ghi đè nút chưa chọn (text-light của bạn bị chìm trên nền trắng) */
+        .btn-group .btn-outline-secondary.text-light {
+            background-color: #f1f5f9 !important;
+            color: #64748b !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .btn-group .btn-outline-secondary.text-light:hover {
+            background-color: #e2e8f0 !important;
+            color: #334155 !important;
+        }
+
+        /* Đổi màu trạng thái Đang giao (btn-primary) sang tone xanh cổ vịt */
+        .btn-group .btn-primary {
+            background-color: #2b5155 !important;
+            color: #ffffff !important;
+        }
+
+        /* Dòng kẻ chia cắt (Vertical divider) */
+        .vr.bg-secondary {
+            background-color: #cbd5e1 !important;
+            opacity: 1;
+        }
+
+        /* Nút Xóa */
+        .btn-outline-danger {
+            border-radius: 8px !important;
+            transition: all 0.2s ease;
+            border-color: #fca5a5;
+            color: #ef4444;
+        }
+        .btn-outline-danger:hover {
+            transform: scale(1.1);
+            background-color: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+    <div class="flex-grow-1 p-4">
+        <div class="content-wrapper">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="bi bi-receipt me-2"></i>Danh sách Đơn Đặt Hàng</h2>
+                    <p class="text-muted mb-0 small">Theo dõi và cập nhật trạng thái đơn hàng của khách</p>
+                </div>
+            </div>
+
+            <div th:if="${tenNhanVien != null}" class="alert fw-bold d-flex align-items-center mb-4 shadow-sm" style="background-color: #e6f2f3; border: 1px solid #b0d4d6; color: #2b5155; border-radius: 10px;">
+                <i class="bi bi-person-workspace fs-4 me-3"></i>
+                <div class="me-auto">
+                    <span class="d-block small text-uppercase" style="letter-spacing: 1px; color: #40777b;">Ca trực hiện tại</span>
+                    <span class="fs-5" th:text="${tenNhanVien}">Tên Nhân Viên</span>
+                </div>
+                <div class="text-end">
+                    <span class="d-block small text-uppercase" style="letter-spacing: 1px; color: #40777b;">Doanh thu duyệt hôm nay</span>
+                    <span class="text-danger fs-5" th:text="${doanhThuCaNhan != null ? #numbers.formatDecimal(doanhThuCaNhan, 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'"></span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col">Mã ĐH</th>
+                        <th scope="col">Ngày Đặt</th>
+                        <th scope="col">Tài khoản đặt</th>
+                        <th scope="col">Điện Thoại</th>
+                        <th scope="col">Địa Chỉ Giao</th>
+                        <th scope="col">Tổng Tiền</th>
+                        <th scope="col">Người Duyệt</th>
+                        <th scope="col" class="text-center">Trạng Thái & Cập Nhật</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="dh : ${danhSachDonHang}">
+                        <td class="fw-bold text-info" th:text="'#' + ${dh.id}">#1</td>
+
+                        <td th:text="${dh.ngayDatHang != null ? #temporals.format(dh.ngayDatHang, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}">Ngày đặt</td>
+
+                        <td>
+                            <span th:if="${dh.user != null}" class="text-primary" th:text="${dh.user.username}"></span>
+                            <span th:unless="${dh.user != null}" class="text-danger">Tài khoản đã xóa</span>
+                        </td>
+
+                        <td th:text="${dh.soDienThoai}">Điện thoại</td>
+                        <td th:text="${dh.diaChiGiao}">Địa chỉ</td>
+
+                        <td class="price-text" th:text="${dh.tongTien != null ? #numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</td>
+
+                        <td>
+                            <div th:if="${dh.nguoiDuyet != null}">
+                                <span class="badge" style="background-color: #40777b;" th:text="${dh.nguoiDuyet}"></span>
+                                <div class="text-muted small mt-1" style="font-size: 0.75rem;" th:text="${dh.ngayDuyet != null ? #temporals.format(dh.ngayDuyet, 'dd/MM/yy HH:mm') : ''}"></div>
+                            </div>
+                            <span th:unless="${dh.nguoiDuyet != null}" class="badge bg-secondary">Chưa duyệt</span>
+                        </td>
+
+                        <td class="text-center">
+                            <form th:action="@{/admin/donhang/update-status}" method="post" class="d-flex gap-3 justify-content-center align-items-center m-0">
+                                <input type="hidden" name="orderId" th:value="${dh.id}">
+
+                                <div class="btn-group shadow-sm" role="group">
+                                    <button type="submit" name="status" value="PENDING"
+                                            class="btn btn-sm fw-semibold"
+                                            th:classappend="${dh.trangThai == 'PENDING' ? 'btn-warning text-dark' : 'btn-outline-secondary text-light'}">
+                                        Chờ xác nhận
+                                    </button>
+
+                                    <button type="submit" name="status" value="PROCESSING"
+                                            class="btn btn-sm fw-semibold"
+                                            th:classappend="${dh.trangThai == 'PROCESSING' ? 'btn-info text-dark' : 'btn-outline-secondary text-light'}">
+                                        Đang xử lý
+                                    </button>
+
+                                    <button type="submit" name="status" value="SHIPPING"
+                                            class="btn btn-sm fw-semibold"
+                                            th:classappend="${dh.trangThai == 'SHIPPING' ? 'btn-primary' : 'btn-outline-secondary text-light'}">
+                                        Đang giao
+                                    </button>
+
+                                    <button type="submit" name="status" value="COMPLETED"
+                                            class="btn btn-sm fw-semibold"
+                                            th:classappend="${dh.trangThai == 'COMPLETED' ? 'btn-success' : 'btn-outline-secondary text-light'}">
+                                        Hoàn thành
+                                    </button>
+
+                                    <button type="submit" name="status" value="CANCELLED"
+                                            class="btn btn-sm fw-semibold"
+                                            th:classappend="${dh.trangThai == 'CANCELLED' ? 'btn-danger' : 'btn-outline-secondary text-light'}">
+                                        Đã hủy
+                                    </button>
+                                </div>
+
+                                <div class="vr bg-secondary" style="width: 2px;"></div>
+
+                                <a th:href="@{'/admin/donhang/delete/' + ${dh.id}}"
+                                   class="btn btn-outline-danger btn-sm rounded-3 px-2"
+                                   title="Xóa đơn hàng"
+                                   onclick="return confirm('⚠️ Chú ý: Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng này không?');">
+                                    <i class="bi bi-trash3 fs-6"></i>
+                                </a>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(danhSachDonHang)}">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i> Chưa có đơn hàng nào được đặt.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

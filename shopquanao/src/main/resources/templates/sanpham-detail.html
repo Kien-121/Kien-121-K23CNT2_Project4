@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${sanPham.name} + ' - N11NHK Shop'">Chi tiết sản phẩm</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+        body {
+            background-color: #f9fbf9;
+            color: #2c3e50;
+            font-family: 'Nunito', sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* CUSTOM NÚT CHỌN SIZE CHO KHÁCH HÀNG */
+        .size-btn {
+            background-color: #fff;
+            color: #354f52;
+            border: 2px solid #cadfd0;
+            font-weight: 800;
+            border-radius: 8px;
+            transition: all 0.2s;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .size-btn:hover {
+            background-color: #e8f0e9;
+            border-color: #84a98c;
+            color: #52796f;
+        }
+
+        .btn-check:checked ~ .size-btn {
+            background-color: #84a98c !important;
+            color: #fff !important;
+            border-color: #52796f !important;
+            box-shadow: 0 4px 10px rgba(132, 169, 140, 0.3);
+        }
+
+        /* KHÓA SIZE KHI HẾT HÀNG TRONG KHO */
+        .disabled-size {
+            opacity: 0.55;
+            text-decoration: line-through;
+            cursor: not-allowed !important;
+            border-color: #e2e8f0 !important;
+            background-color: #f8fafc !important;
+            color: #94a3b8 !important;
+            pointer-events: none; /* Chặn click hoàn toàn */
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: chonguoidung}"></div>
+
+<div class="container mt-5 mb-5 flex-grow-1">
+
+    <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm" style="border: 1px solid #eef2ee;">
+        <div class="row">
+
+            <div class="col-md-5 mb-4 mb-md-0">
+                <div class="overflow-hidden rounded-4 border" style="border-color: #e8f0e9 !important;">
+                    <img th:src="${sanPham.image != null and sanPham.image != '' ? sanPham.image : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}"
+                         alt="Ảnh sản phẩm" class="img-fluid w-100" style="object-fit: cover; max-height: 600px;">
+                </div>
+            </div>
+
+            <div class="col-md-7 ps-md-5 d-flex flex-column">
+
+                <p class="text-muted small mb-2">Trang chủ / <span th:text="${sanPham.danhMuc != null ? sanPham.danhMuc.name : 'Khác'}">Danh mục</span></p>
+
+                <h1 class="fw-bold mb-2" style="color: #2c3e50;" th:text="${sanPham.name}">Tên sản phẩm</h1>
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="text-warning me-2 fs-5">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                    </div>
+                    <span class="text-muted fw-semibold">(4.5/5 - 128 đánh giá)</span>
+                </div>
+
+                <h2 class="fw-bold mb-4" style="color: #52796f;" th:text="${#numbers.formatDecimal(sanPham.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá tiền</h2>
+
+                <p class="text-secondary mb-4 lh-lg" th:text="${sanPham.description}">Mô tả chi tiết sản phẩm...</p>
+
+                <form id="addToCartForm" th:action="@{/cart/add}" method="POST" class="mt-auto bg-light p-4 rounded-4" style="border: 1px dashed #cadfd0;">
+                    <input type="hidden" name="productId" th:value="${sanPham.id}">
+
+                    <div class="mb-4" th:if="${danhSachSize != null and !#lists.isEmpty(danhSachSize)}">
+                        <label class="form-label fw-bold text-dark mb-2">Kích cỡ (Size):</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <th:block th:each="kho : ${danhSachSize}">
+                                <div>
+                                    <input type="radio" class="btn-check" name="size"
+                                           th:id="'size_' + ${kho.size}"
+                                           th:value="${kho.size}"
+                                           th:disabled="${kho.soLuongTon < 1}">
+
+                                    <label class="btn size-btn px-4 py-2 m-0 d-flex flex-column align-items-center justify-content-center"
+                                           th:for="'size_' + ${kho.size}"
+                                           th:classappend="${kho.soLuongTon < 1 ? 'disabled-size' : ''}">
+                                        <span th:text="${kho.size}"></span>
+                                        <small th:if="${kho.soLuongTon < 1}" class="text-danger fw-bold mt-1" style="font-size: 0.65rem; text-decoration: none !important;">Hết hàng</small>
+                                    </label>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 text-danger fw-bold fst-italic" th:unless="${danhSachSize != null and !#lists.isEmpty(danhSachSize)}">
+                        <i class="bi bi-info-circle me-1"></i> Sản phẩm này hiện chưa được nhập kho hoặc đã hết hàng.
+                    </div>
+                    <div class="d-flex align-items-end gap-3 mt-2">
+
+                        <div>
+                            <label class="form-label fw-bold text-dark mb-1">Số lượng:</label>
+                            <input type="number" name="quantity" class="form-control text-center fw-bold fs-5" value="1" min="1" style="width: 80px; height: 50px; border-color: #cadfd0; color: #354f52;">
+                        </div>
+
+                        <div class="flex-grow-1 d-flex gap-2">
+
+                            <th:block sec:authorize="!isAuthenticated()">
+                                <a th:href="@{/login}" class="btn w-50 fw-bold d-flex align-items-center justify-content-center shadow-sm"
+                                   style="height: 50px; border: 2px solid #52796f; color: #52796f; transition: 0.3s; font-size: 1rem; background: white;"
+                                   onclick="alert('Vui lòng đăng nhập để thêm vào giỏ hàng!');">
+                                    <i class="bi bi-cart-plus me-2 fs-5"></i> THÊM VÀO GIỎ
+                                </a>
+
+                                <a th:href="@{/login}" class="btn text-white w-50 fw-bold d-flex align-items-center justify-content-center shadow-sm"
+                                   style="background-color: #84a98c; height: 50px; transition: 0.3s; font-size: 1rem;"
+                                   onclick="alert('Vui lòng đăng nhập để tiến hành mua hàng!');">
+                                    <i class="bi bi-bag-check me-2 fs-5"></i> MUA NGAY
+                                </a>
+                            </th:block>
+
+                            <th:block sec:authorize="isAuthenticated()">
+
+                                <button type="button" onclick="addDetailToCartAjax()" class="btn w-50 fw-bold d-flex align-items-center justify-content-center shadow-sm"
+                                        style="height: 50px; border: 2px solid #52796f; color: #52796f; background-color: white; transition: 0.3s; font-size: 1rem;"
+                                        onmouseover="this.style.backgroundColor='#e8f0e9'" onmouseout="this.style.backgroundColor='white'">
+                                    <i class="bi bi-cart-plus me-2 fs-5"></i> THÊM VÀO GIỎ
+                                </button>
+
+                                <button type="submit" class="btn text-white w-50 fw-bold d-flex align-items-center justify-content-center shadow-sm"
+                                        style="background-color: #84a98c; height: 50px; transition: 0.3s; font-size: 1rem;"
+                                        onmouseover="this.style.backgroundColor='#52796f'" onmouseout="this.style.backgroundColor='#84a98c'">
+                                    <i class="bi bi-bag-check me-2 fs-5"></i> MUA NGAY
+                                </button>
+
+                            </th:block>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function addDetailToCartAjax() {
+        const form = document.getElementById('addToCartForm');
+        const formData = new URLSearchParams(new FormData(form));
+
+        // Kiểm tra xem khách đã tick chọn kích cỡ chưa (Bảo vệ lỗi)
+        // Những size bị disabled sẽ không được FormData thu thập, nên check này vẫn hoạt động hoàn hảo
+        if (form.querySelector('input[name="size"]') && !formData.get('size')) {
+            alert('Vui lòng chọn Kích cỡ (Size) áo/quần trước khi thêm vào giỏ!');
+            return;
+        }
+
+        // Gửi dữ liệu ngầm lên Server
+        fetch('/cart/add', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Hiện thông báo thành công
+                    showToast('Tuyệt vời! Đã thêm sản phẩm vào giỏ hàng thành công.');
+
+                    // Sau 1 giây tự động tải lại trang để Mini Cart trên Header cập nhật số lượng
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Lỗi phản hồi từ máy chủ');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Đã xảy ra lỗi khi kết nối tới giỏ hàng!');
+            });
+    }
+
+    // Hàm tạo hộp thoại thông báo màu xanh
+    function showToast(message) {
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '1055';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toastHtml = `
+            <div class="toast align-items-center text-bg-success border-0 show shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body fw-bold fs-6">
+                  <i class="bi bi-check-circle-fill me-2"></i> ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
+              </div>
+            </div>
+        `;
+
+        const toastElement = document.createElement('div');
+        toastElement.innerHTML = toastHtml;
+        toastContainer.appendChild(toastElement.firstElementChild);
+    }
+</script>
+
+</body>
+</html>
